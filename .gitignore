@@ -1,0 +1,33 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Ambiente Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+*.egg-info/
+env/
+venv/
+
+# Ferramentas e IDEs
+.idea/
+.vscode/
+*.swp
+
+# Arquivos de build
+build/
+dist/
+*.o
+*.out
+*.a
+*.exe
+
+# Outros
+*.bak
+*.tmp
+.project.mobirise
