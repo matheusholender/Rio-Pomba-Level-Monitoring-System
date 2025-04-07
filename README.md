@@ -1,6 +1,7 @@
 # Sistema de Medição Ultrassônica – Rio Pomba
 
-Sistema embarcado para medição do nível do Rio Pomba com ESP32 e Sensor Ultrassônico A01 Switch Output, com transmissão de dados via MQTT (em construção, utilizando no momento apenas webserver local).
+Projeto com ESP32 e Sensor Ultrassônico A01 (Switch Output) para monitoramento do nível do Rio Pomba. Atualmente, os dados são disponibilizados via webserver local. Futuramente, estarão acessíveis em um site público com atualização em tempo real via MQTT.
+O projeto visa disponibilizar à população da cidade uma plataforma para consultar o nível do Rio Pomba, o rio mais importante da cidade mas que em várias ocasiões, principalmente na época das chuvas, transborda e causa danos muitas vezes irreparáveis à população.
 
 ## Como usar
 
