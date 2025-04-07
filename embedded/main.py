@@ -2,6 +2,8 @@ import _thread
 import time
 import sensor
 import webserver
+from sensor import *
+from webserver import *
 
 text = (
     "----------------------------------------------------------------\n"
