@@ -38,16 +38,22 @@ def read_bytearray(ser):
     return ser.readline()
 
 # Define o threshold de detecção
-def set_threshold(threshold_mm):
+def set_threshold(threshold_mm, retries=50):
     ser = UART(1, baudrate=9600, tx=tx_pin, rx=rx_pin)
     ser.init(bits=8, parity=None, stop=2)
     time.sleep(0.1)
-    send_bytearray(threshold_mm, ser)
-    time.sleep(0.5)
-    # Se não houver resposta, tenta novamente
-    if not read_bytearray(ser):
+
+    for attempt in range(retries):
+        send_bytearray(threshold_mm, ser)
+        time.sleep(0.5)
+
+        if read_bytearray(ser):
+            return True  # sucesso
+
         time.sleep(0.3)
-        set_threshold(threshold_mm)
+
+    print(f"{VERB.RED}Error: Sensor not found.{VERB.ENDC}")
+    return False  # falha após todas as tentativas
 
 # Lê o estado de detecção (True se detectado, False caso contrário)
 def check_state():
@@ -73,6 +79,34 @@ def check_threshold(threshold_mm):
     time.sleep(0.5)
     return check_state_confirmed()
 
+def estimate_response_time():
+    """
+    Estima o tempo de resposta do sensor.
+    Primeiro, garante que o sensor esteja em estado False definindo o threshold para 300 mm.
+    Em seguida, define o threshold para 7500 mm e inicia a contagem do tempo
+    até que check_state() retorne True.
+    """
+    # Garante que o sensor comece com estado False
+    print(f"{VERB.CYAN}Configurando threshold para 300 mm (estado inicial).{VERB.ENDC}")
+    set_threshold(300)
+    time.sleep(0.5)  # Pequena pausa para estabilizar o estado
+    if check_state():
+        print(f"{VERB.YELLOW}Atenção: check_state retornou True em 300 mm. Verifique a conexão ou o sensor!{VERB.ENDC}")
+    
+    # Inicia o tempo a partir do set para 7500 mm
+    print(f"{VERB.CYAN}Configurando threshold para 7500 mm e iniciando medição do tempo de resposta...{VERB.ENDC}")
+    start = time.ticks_ms()
+    set_threshold(7500)
+    
+    # Espera ativamente até que check_state() retorne True (detecta o objeto)
+    while not check_state():
+        pass  # Aguarda sem adicionar delays extras para medir o tempo puro
+    
+    response_time = time.ticks_diff(time.ticks_ms(), start)
+    print(f"{VERB.OKGREEN}Tempo de resposta estimado: {response_time} ms{VERB.ENDC}")
+    return response_time
+
+
 # Busca binária com verificação por maioria
 def measure_binary(min_val=300, max_val=7500, tolerance=10):
     low = min_val
@@ -94,18 +128,6 @@ def measure_binary(min_val=300, max_val=7500, tolerance=10):
 # Função principal para rodar a medição com busca binária
 def run_binary(tolerance=10):
     # Primeiro, teste com 7500 mm para verificar se o objeto está no range
-    set_threshold(7500)
-    time.sleep(0.5)
-    if not check_state_confirmed():
-        print(f"{VERB.RED}{VERB.BOLD}Object out of detection range (+7500mm){VERB.ENDC}")
-        return None
-    
-    # Segundo, teste com 300 mm para verificar se o objeto está no range
-    set_threshold(300)
-    time.sleep(0.5)
-    if check_state_confirmed():
-        print(f"{VERB.RED}{VERB.BOLD}Object out of detection range (-300mm){VERB.ENDC}")
-        return None
     print(f"{VERB.OKGREEN}{VERB.BOLD}Starting measurement...{VERB.ENDC}")
     start = time.ticks_ms()
     result = measure_binary(300, 7500, tolerance)
