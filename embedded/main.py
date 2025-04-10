@@ -18,7 +18,7 @@ def measurement_thread():
         value,precision = sensor.run_binary() 
         #webserver.update_value(value)
         if value is not None:
-            print(f"{VERB.OKGREEN}Distance: {float(value/ 10)} (±{precision/10} cm)\n{VERB.ENDC}")
+            print(f"{VERB.OKGREEN}Distance: {float(value/ 10)} (±{precision/10}) cm\n{VERB.ENDC}")
         time.sleep(5)
         
 
